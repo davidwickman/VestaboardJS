@@ -3,34 +3,54 @@ import { Formatter } from '../Formatter';
 import { Installable as InstallableConstructor } from '../Installable/index';
 import { post as postURL } from '../shared/url';
 
+interface BoardConfig {
+  apiKey?: string;
+  apiSecret?: string;
+  subId?: string;
+  saveCredentials?: boolean;
+}
+
 export class Board {
   apiKey?: string;
   apiSecret?: string;
   subscriptionId?: string;
   Installable?: InstallableConstructor;
+
   constructor(
-    apiKey?: string,
+    apiKeyOrConfig?: string | BoardConfig,
     apiSecret?: string,
     subscriptionId?: string,
     Installable?: InstallableConstructor,
   ) {
-    //TODO Check for installable and all that jazz here
-    // 1. Check for key/secret
-    // 2. if key/secret, check for subId
-    // 3. if all three, good to go
-    this.Installable = Installable;
-    this.apiKey = apiKey;
-    this.apiSecret = apiSecret;
-    this.subscriptionId = subscriptionId;
+    if (typeof apiKeyOrConfig === 'object') {
+      // Handle single object parameter
+      this.apiKey = apiKeyOrConfig.apiKey;
+      this.apiSecret = apiKeyOrConfig.apiSecret;
+      this.subscriptionId = apiKeyOrConfig.subId;
+      this.Installable = new InstallableConstructor(
+        this.apiKey,
+        this.apiSecret,
+        apiKeyOrConfig.saveCredentials
+      );
+    } else {
+      // Handle individual parameters
+      this.apiKey = apiKeyOrConfig;
+      this.apiSecret = apiSecret;
+      this.subscriptionId = subscriptionId;
+      this.Installable = Installable;
+    }
 
     if (!this.Installable) {
-      // Check for missing parameters
       this.Installable = new InstallableConstructor(this.apiKey, this.apiSecret);
-      if (!this.apiKey || !this.apiSecret || !this.subscriptionId) {
-        // Create a new installable, which will check for saved creds
-      }
-      this.apiKey = this.Installable?.apiKey;
     }
+
+    if (!this.apiKey || !this.apiSecret || !this.subscriptionId) {
+      // Create a new installable, which will check for saved creds
+      // You might want to implement this logic
+    }
+
+    // Ensure apiKey is set from Installable if not provided directly
+    this.apiKey = this.apiKey || this.Installable.apiKey;
   }
 
   post(message: string): void {
