@@ -35,16 +35,16 @@ export class Board {
 
   post(message: string): void {
     const data = new Formatter()._standard(message);
-    const url = postURL(this.subscriptionId);
+    const url = postURL(this.subscriptionId!);
     const options = {
-      method: 'POST',
+      method: 'POST' as const,
       url,
       headers: {
-        'X-Vestaboard-Api-Key': this.apiKey,
-        'X-Vestaboard-Api-Secret': this.apiSecret,
+        'X-Vestaboard-Api-Key': this.apiKey || '',
+        'X-Vestaboard-Api-Secret': this.apiSecret || '',
       },
       data,
-    } as const;
+    };
 
     console.log('options:', options);
     axios(options)

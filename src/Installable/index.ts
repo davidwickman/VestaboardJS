@@ -28,7 +28,8 @@ export class Installable {
 
   readCredentials() {
     try {
-      const creds = fs.readFileSync(`${__dirname}/credentials.txt`, { encoding: 'utf-8' });
+      const credPath = path.join(path.dirname(__filename), 'credentials.txt');
+      const creds = fs.readFileSync(credPath, { encoding: 'utf-8' });
       const [apiKey, apiSecret, subId] = creds.split('\n');
       this.apiKey = apiKey;
       this.apiSecret = apiSecret;
@@ -77,8 +78,9 @@ export class Installable {
     }
     this.subId = subId;
     if (this.saveCredentials) {
+      const credPath = path.join(path.dirname(__filename), 'credentials.txt');
       fs.writeFileSync(
-        `${__dirname}/credentials.txt`,
+        credPath,
         `${this.apiKey}\n${this.apiSecret}\n${this.subId}`,
       );
     }
